@@ -30,8 +30,8 @@ print('twitter object established')
 
 def getPast():
 	## open file
-	## 	Read # of previous tweet
-	## Close file?
+	## 	Read # of last read tweet
+	## Close file
 
 	try:
 		flx = open('pastNumber.txt',"r")
@@ -45,15 +45,13 @@ def getPast():
 	row = flx.read()
 
 	flx.close()
-
-	writeLog("Writing past number: ", int(row), "w")
 	               
 	return int(row)
 
 def getCurrent(pastNumber,onameka):
 	
 	##Contact twitter
-	## Read Trump's most recent tweet
+	## Read most recent tweet that mentions @make
 	## Extract Tweet ID Number
 
 	putput=[]
