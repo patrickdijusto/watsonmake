@@ -45,33 +45,22 @@ def getCurrent(pastNumber):
 	
 	##Contact twitter
 	## Read most recent tweet that mentions @make
-	## Extract Tweet ID Number
+	## Extract Tweet ID Number	
+	
+	St = api.GetSearch(term='@make -RT', since_id = pastNumber, result_type = 'recent')
 
-	putput=[]
+	# print("And now we print the Status of the last Tweets")
 	
-	
-	St = api.GetSearch(term='@make', since_id = pastNumber)
+	# for index in St:
+		# mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
+		# print(mx.lstrip())
+		# print("\n")
 
-	print("And now we print the Status of the last Tweets")
-	
-	for index in St:
-		mx = re.sub(r'@\S+', '', re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore')))
-		print(mx.lstrip())
-		print("\n\n\n\n")
-
-	# print(re.sub(r'@\S+', '', re.sub(r'https://\S+', '', normalize('NFKD', St[1].text).encode('ascii','ignore'))))
-	# print(re.sub(r'@\S+', '', re.sub(r'https://\S+', '', normalize('NFKD', St[2].text).encode('ascii','ignore'))))
-	# print(re.sub(r'@\S+', '', re.sub(r'https://\S+', '', normalize('NFKD', St[3].text).encode('ascii','ignore'))))
-	# print(re.sub(r'@\S+', '', re.sub(r'https://\S+', '', normalize('NFKD', St[4].text).encode('ascii','ignore'))))
-	
 		
-	print("And now just the first entry")
-	print (St[0].id)
-	putput.append(St[0].id)
-
-
-	
-	print("\nThe text: \n")
+	#print("And now just the first entry")
+	#print (St[0].id)
+		
+	#print("\nThe text: \n")
 	# mid_text = normalize('NFKD', St[0].text).encode('ascii','ignore')
 	
 	# midi_text = re.sub(r'https://\S+', '', mid_text)
@@ -82,26 +71,23 @@ def getCurrent(pastNumber):
 	
 	# midi_text = re.sub(r'https://\S+', '', normalize('NFKD', St[0].text).encode('ascii','ignore'))
 	
-	mid_text = re.sub(r'@\S+', '', re.sub(r'https://\S+', '', normalize('NFKD', St[0].text).encode('ascii','ignore')))
+	#mid_text = re.sub(r'https://\S+', '', normalize('NFKD', St[0].text).encode('ascii','ignore'))
 	
-	out_text = mid_text.lstrip()
+	#out_text = mid_text.lstrip()
 	
-	print(out_text)	
+	#print(out_text)	
 	
-	putput.append(out_text)
-
-	
-	return putput
+	return St
 	
 	
 	
 	
 
 def writePast(ccc):
-        flx = open('pastNumber.txt', "w")
-        flx.write(str(ccc))
-        flx.close()
-        writeLog("writing past: ", int(ccc), "a")
+	flx = open('pastNumber.txt', "w")
+	flx.write(str(ccc))
+	flx.close()
+        
 
 		
 def writeLog(TweetText, currentNumber, mode):
@@ -116,24 +102,23 @@ def writeLog(TweetText, currentNumber, mode):
         fly.write(str(currentNumber))
         fly.close()
 
+		
+		
+		
+		
+		
 pastNumber = getPast()
 
 print ("Past number is:")
 
 print (pastNumber)
 
-
-##outlist = getCurrent(pastNumber,handler)
 outlist = getCurrent(pastNumber)
 
-print(outlist)
-
-#writePast(outlist[0])
+###writePast(outlist[0].id)
 
 
-# if (currentNumber > pastNumber):
-        # postReply(TweetText, currentNumber)
-						
+
 
 ##  THE WATSON SECTION OF THE CODE
 ##  https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/python.html?python#tone
@@ -146,28 +131,45 @@ print(outlist)
 						
 						
 						
-# tone_analyzer = ToneAnalyzerV3(
-    # ##version='2017-09-21',
-	# version='2016-05-19',
-    # username='419a0281-d84a-4281-bc03-3def84761f7f',
-    # password='aTC4VyXndf2v'
-# )
+tone_analyzer = ToneAnalyzerV3(
+    version='2017-09-21',
+	##version='2016-05-19',
+    username='419a0281-d84a-4281-bc03-3def84761f7f',
+    password='aTC4VyXndf2v'
+)
 
 
-# tone_analyzer.set_url('https://gateway.watsonplatform.net/tone-analyzer/api')
+tone_analyzer.set_url('https://gateway.watsonplatform.net/tone-analyzer/api')
 
-# tone_analyzer.set_detailed_response(False)
+tone_analyzer.set_detailed_response(False)
 
-# content_type = 'application/json'
+content_type = 'application/json'
 
 
-# try:
-	# if(outlist[1][:2] != "RT"):
-		# tone = tone_analyzer.tone({"text": outlist[1]},content_type, True)
-# except WatsonApiException as ex:
-# #except:
-    # print "Method failed with status code " + str(ex.code) + ": " + ex.message
-	# #print("Failure!")
+try:
+	counter = 0
+	for index in outlist:
+		counter = counter +1
+		mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
+		xx= mx.lstrip()
+		jayson = [{"text": xx, "user":"customer"}]
+		tone = tone_analyzer.tone_chat(jayson)
+		##print(json.dumps(tone, indent=2))
+		aa = tone[u'utterances_tone'][0][u'tones']
+		if (aa):
+			print("The tweet %s" % tone[u'utterances_tone'][0][u'utterance_text'])
+			print(outlist[counter].id)
+			print("has an emotional rating of:")
+			for outdex in aa:
+				print outdex[u'tone_name']
+				print outdex[u'score']
+				print("\n")
+		else:
+			print("\n")
+		
+except:
+    #print "Method failed with status code " + str(ex.code) + ": " + ex.message
+	print("Failure!")
 
 
 # print(json.dumps(tone, indent=2))
