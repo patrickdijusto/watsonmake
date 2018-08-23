@@ -48,34 +48,6 @@ def getCurrent(pastNumber):
 	## Extract Tweet ID Number	
 	
 	St = api.GetSearch(term='@make -RT', since_id = pastNumber, result_type = 'recent')
-
-	# print("And now we print the Status of the last Tweets")
-	
-	# for index in St:
-		# mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
-		# print(mx.lstrip())
-		# print("\n")
-
-		
-	#print("And now just the first entry")
-	#print (St[0].id)
-		
-	#print("\nThe text: \n")
-	# mid_text = normalize('NFKD', St[0].text).encode('ascii','ignore')
-	
-	# midi_text = re.sub(r'https://\S+', '', mid_text)
-	
-	# out_text = re.sub(r'@\S+', '', midi_text)
-	
-	# mid_text = normalize('NFKD', St[0].text).encode('ascii','ignore')
-	
-	# midi_text = re.sub(r'https://\S+', '', normalize('NFKD', St[0].text).encode('ascii','ignore'))
-	
-	#mid_text = re.sub(r'https://\S+', '', normalize('NFKD', St[0].text).encode('ascii','ignore'))
-	
-	#out_text = mid_text.lstrip()
-	
-	#print(out_text)	
 	
 	return St
 	
@@ -89,22 +61,6 @@ def writePast(ccc):
 	flx.close()
         
 
-		
-def writeLog(TweetText, currentNumber, mode):
-
-        ##print("Writing a log...")
-        now = datetime.datetime.now()
-        message = "\n"+str(now)
-        
-        fly = open("writeLog.txt", mode)
-        fly.write(message)
-        fly.write(TweetText)
-        fly.write(str(currentNumber))
-        fly.close()
-
-		
-		
-		
 		
 		
 pastNumber = getPast()
@@ -170,42 +126,4 @@ try:
 except:
     #print "Method failed with status code " + str(ex.code) + ": " + ex.message
 	print("Failure!")
-
-
-# print(json.dumps(tone, indent=2))
-
-# print(tone)	
-
-# try:
-	# t0=(tone[u'document_tone'][u'tones'][0][u'tone_name'])
-	# s0=(tone[u'document_tone'][u'tones'][0][u'score'])
-	# print("\nThis tweet gets %s out of 100 for %s" % ((s0* 100),t0))
-# except:
-	# print('\nNothing to report')
-
-
-# try:	
-	# t1=(tone[u'document_tone'][u'tones'][1][u'tone_name'])
-	# s1=(tone[u'document_tone'][u'tones'][1][u'score'])
-	# print("This tweet gets %s out of 100 for %s" % ((s1* 100),t1))
-# except:
-	# print('Nothing further to report')
-	
-	
-	
-# try:
-	# t2=(tone[u'document_tone'][u'tones'][2][u'tone_name'])
-	# s2=(tone[u'document_tone'][u'tones'][2][u'score'])
-	# print("This tweet gets %s out of 100 for %s" % ((s2* 100),t2))
-# except:
-	# print('Nothing further to report')
-	
-
-# try:	
-	# t3=(tone[u'document_tone'][u'tones'][3][u'tone_name'])
-	# s3=(tone[u'document_tone'][u'tones'][3][u'score'])
-	# print("This tweet gets %s out of 100 for %s" % ((s3* 100),t3))
-# except:
-	# print('Nothing further to report')
-
 
