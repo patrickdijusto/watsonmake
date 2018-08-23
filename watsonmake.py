@@ -1,6 +1,7 @@
 import json
 import datetime
 import re
+import requests
 from unicodedata import normalize
 from watson_developer_cloud import ToneAnalyzerV3
 from watson_developer_cloud import WatsonApiException
@@ -8,7 +9,9 @@ import twitter
 from settings import *
 
 global api
-## Run entire twitter infrasctucture
+threshold = 0.51
+
+## Run entire twitter infrastructure
 
 
 print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nestablish the twitter object')
@@ -61,6 +64,20 @@ def writePast(ccc):
 	flx.close()
         
 
+		
+def slack(id, text, name, score):
+
+	## This is the section that sends data to a Slack channel
+	## First, set the emotional threshold as a global at the top of the program, i.e. global threshold = 0.85 -- DONE
+	## Then, see if a particular tweet equals or exceeds the threshold in any emotion -- DONE
+	## Then format a string to send to Slack. "The tweet http://xxxxx/ shows unusually high levels of SADNESS in reference to @make. Some human should check it out." -- DONE
+	## Then, establish the Slack API
+	## Then send the string
+	##message = "The tweet http://xxxxx/ shows unusually high levels of SADNESS in reference to @make. Some human should check it out.
+	a = "The tweet http://twitter.com/anyuser/status"+str(id)+" "
+	b = "with text: '"+text+"' has an emotional rating of "+str(score)+" in the category "+name+". Someone should look into it."
+	
+	print(a+b)
 		
 		
 pastNumber = getPast()
@@ -120,10 +137,23 @@ try:
 				print outdex[u'tone_name']
 				print outdex[u'score']
 				print("\n")
+				if(outdex[u'score'])> threshold:
+					slack(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
 		else:
 			print("\n")
 		
 except:
     #print "Method failed with status code " + str(ex.code) + ": " + ex.message
 	print("Failure!")
+
+	
+	
+## This is the section that sends data to the Google Sheet via POST via IFTTT
+## First -- extract the URL of the tweet
+## Then combine tone name and score into a single string
+## Then use POST to send to IFTTT via webhooks
+## Then let IFTTT update Google Sheet
+
+
+
 
