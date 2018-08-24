@@ -74,10 +74,21 @@ def slack(id, text, name, score):
 	## Then, establish the Slack API
 	## Then send the string
 	##message = "The tweet http://xxxxx/ shows unusually high levels of SADNESS in reference to @make. Some human should check it out.
-	a = "The tweet http://twitter.com/anyuser/status"+str(id)+" "
+	a = "The tweet http://twitter.com/anyuser/status/"+str(id)+" "
 	b = "with text: '"+text+"' has an emotional rating of "+str(score)+" in the category "+name+". Someone should look into it."
-	
+	c=a+b
 	print(a+b)
+	z = "https://maker.ifttt.com/trigger/make_slack_threshold/with/key/oLkGeEI6UrkiMC4sK3nQNLZStJaMhKJC1JZT4kumhxm"
+	data = { "value1" : c}
+	r = requests.post(url = z, data = data)
+	
+	
+	
+	
+	
+	
+	
+	
 		
 		
 pastNumber = getPast()
