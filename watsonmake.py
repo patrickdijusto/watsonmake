@@ -1,5 +1,5 @@
 import json
-import datetime
+##import datetime
 import re
 import requests
 from unicodedata import normalize
@@ -47,8 +47,8 @@ def getPast():
 def getCurrent(pastNumber):
 	
 	##Contact twitter
-	## Read most recent tweet that mentions @make
-	## Extract Tweet ID Number	
+	## Read most recent tweet(s) that mentions @make, but is not a retweet
+	## return tweet
 	
 	St = api.GetSearch(term='@make -RT', since_id = pastNumber, result_type = 'recent')
 	
@@ -82,6 +82,35 @@ def slack(id, text, name, score):
 	data = { "value1" : c}
 	r = requests.post(url = z, data = data)
 	
+def sheet(index, id, text, name, score):
+    ##sad, frustrated, satisfied, excited, polite, impolite, and sympathetic
+	## This is the section that sends data to a Google Spreadhseet
+	## Uses the same emotional threshold as Slack
+	## Open the Spreadsheet.txt file to read number of the spreadsheet row
+	## POST the following data to spreadsheet cells:
+	##	Column A: Datetime
+	##	Column B: Tweet URL
+	##	Column C: Tweet Text
+	##	Column D: Sad Score
+	##	Column E: Frustrated Score
+	##	Column F: impolite score
+	##	Column G: Satisfied score
+	##	Column H: Excited Score
+	##	Column I: Polite Score
+	##	Column J: Sympathetic score
+	
+	if(index ==1):
+		#Get new row number
+		print("hello world")
+		col = 'A5'
+		
+	
+	
+	a = "http://twitter.com/anyuser/status/"+str(id)+" "
+		
+	z = "https://maker.ifttt.com/trigger/spreadsheet/with/key/oLkGeEI6UrkiMC4sK3nQNLZStJaMhKJC1JZT4kumhxm"
+	data = { "value1" : col, "value2": a}
+	##r = requests.post(url = z, data = data)
 	
 	
 	
@@ -144,12 +173,15 @@ try:
 			print("The tweet %s" % tone[u'utterances_tone'][0][u'utterance_text'])
 			print(outlist[counter].id)
 			print("has an emotional rating of:")
+			outdex_index = 1
 			for outdex in aa:
 				print outdex[u'tone_name']
 				print outdex[u'score']
 				print("\n")
 				if(outdex[u'score'])> threshold:
 					slack(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
+					sheet(outdex_index, outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
+				outdex_index = outdex_index +1
 		else:
 			print("\n")
 		
