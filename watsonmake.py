@@ -101,8 +101,13 @@ def sheet(index, id, text, name, score):
 	
 	if(index ==1):
 		#Get new row number
-		print("hello world")
-		col = 'A5'
+		flx = open('pastRow.txt',"r")
+		row = int(flx.read())
+		print(row)
+		flx.close()
+		
+		print("Internal index == 1")
+		col = 'B'+str(row)
 		
 	
 	
@@ -110,7 +115,54 @@ def sheet(index, id, text, name, score):
 		
 	z = "https://maker.ifttt.com/trigger/spreadsheet/with/key/oLkGeEI6UrkiMC4sK3nQNLZStJaMhKJC1JZT4kumhxm"
 	data = { "value1" : col, "value2": a}
-	##r = requests.post(url = z, data = data)
+	print(data)
+	r = requests.post(url = z, data = data)
+	print(r)
+	
+	
+	col = 'C'+str(row)
+	data = { "value1" : col, "value2": text}
+	print(data)
+	r = requests.post(url = z, data = data)
+	print(r)
+	
+	
+	
+	if(name == "Sad"):
+		col = 'D'+str(row)
+	elif(name == "Frustrated"):
+		col = 'E'+str(row)
+	elif(name == "Impolite"):
+		col = 'F'+str(row)
+	elif(name == "Satisfied"):
+		col = 'G'+str(row)
+	elif(name == "Excited"):
+		col = 'H'+str(row)
+	elif(name == "Polite"):
+		col = 'I'+str(row)
+	elif(name == "Sympathetic"):
+		col = 'J'+str(row)
+		
+	print(col)
+	data = { "value1" : col, "value2": score}
+	
+	print(data)
+	r = requests.post(url = z, data = data)
+	print(r)
+	
+	print("pre Row ")
+	print(row)
+	row = row+1
+	print("final Row ")
+	print(row)
+	flx = open('pastRow.txt', "w")
+	print(flx)
+	result = flx.write(str(row))
+	print(result)
+	result = flx.close()
+	print(result)
+
+	
 	
 	
 	
@@ -128,7 +180,7 @@ print (pastNumber)
 
 outlist = getCurrent(pastNumber)
 
-###writePast(outlist[0].id)
+writePast(outlist[0].id)
 
 
 
