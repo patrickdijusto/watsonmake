@@ -51,7 +51,6 @@ def getCurrent(pastNumber):
 	## return tweet
 
 	St = api.GetSearch(term='@make -RT', since_id = pastNumber, result_type = 'recent')
-	print(St)
 	return St
 
 
@@ -74,14 +73,14 @@ def slack(id, text, name, score):
 	## Then send the string
 	##message = "The tweet http://xxxxx/ shows unusually high levels of SADNESS in reference to @make. Some human should check it out.
 	a = "The tweet http://twitter.com/anyuser/status/"+str(id)+" "
-	b = "with text: '"+text+"' has an emotional rating of "+str(score)+" in the category "+name+". Someone should look into it."
+	b = "with text: '"+text+"' has an emotional rating of "+str(score)+" in the category "+name+"."
 	c=a+b
 	print(a+b)
 	z = "https://maker.ifttt.com/trigger/make_slack_threshold/with/key/oLkGeEI6UrkiMC4sK3nQNLZStJaMhKJC1JZT4kumhxm"
 	data = { "value1" : c}
 	r = requests.post(url = z, data = data)
 
-def sheet(index, id, text, name, score):
+def sheet(id, text, name, score):
     ##sad, frustrated, satisfied, excited, polite, impolite, and sympathetic
 	## This is the section that sends data to a Google Spreadhseet
 	## Uses the same emotional threshold as Slack
@@ -98,15 +97,15 @@ def sheet(index, id, text, name, score):
 	##	Column I: Polite Score
 	##	Column J: Sympathetic score
 	
-	if(index ==1):
-		#Get new row number
-		flx = open('pastRow.txt',"r")
-		row = int(flx.read())
-		print(row)
-		flx.close()
 
-		print("Internal index == 1")
-		col = 'B'+str(row)
+	#Get new row number
+	flx = open('pastRow.txt',"r")
+	row = int(flx.read())
+	print(row)
+	flx.close()
+
+	print("Internal index == 1")
+	col = 'B'+str(row)
 
 
 
@@ -180,7 +179,7 @@ outlist = getCurrent(pastNumber)
 
 print(outlist)
 
-##writePast(outlist[0].id)
+writePast(outlist[0].id)
 
 
 
@@ -210,41 +209,46 @@ tone_analyzer.set_detailed_response(False)
 content_type = 'application/json'
 
 
-try:
-	counter = 0
-	print(counter)
-	for index in outlist:
-		print("index: " & index)
-		counter = counter +1
-		print("Counter: " & counter)
-		mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
-		print(mx)
-		xx= mx.lstrip()
-		print(xx)
-		jayson = [{"text": xx, "user":"customer"}]
-		tone = tone_analyzer.tone_chat(jayson)
-		print(json.dumps(tone, indent=2))
-		aa = tone[u'utterances_tone'][0][u'tones']
-		print(aa)
-		if (aa):
-			print("The tweet %s" % tone[u'utterances_tone'][0][u'utterance_text'])
-			print(outlist[counter].id)
-			print("has an emotional rating of:")
-			outdex_index = 1
-			for outdex in aa:
-				print(outdex[u'tone_name'])
-				print(outdex[u'score'])
-				print("\n")
-				if(outdex[u'score'])> threshold:
-					slack(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
-					sheet(outdex_index, outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
-				outdex_index = outdex_index +1
-		else:
-			print("\n")
 
-except:
-    #print "Method failed with status code " + str(ex.code) + ": " + ex.message
-	print("Failure!")
+counter = 0
+print(counter)
+for index in outlist:
+	print("index: ")
+	print(index)
+	counter = counter +1
+	print("Counter: ") 
+	print(counter)
+	ax = index.text.encode('ascii','ignore')
+	print("ax:")
+	print(ax)
+	mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
+	print("MX:")
+	print(mx)
+	xx= mx.lstrip()
+	print("xx")
+	print(xx)
+	jayson = [{"text": xx, "user":"customer"}]
+	tone = tone_analyzer.tone_chat(jayson)
+	print("Jayson dumps tone:")
+	print(json.dumps(tone, indent=2))
+	aa = tone[u'utterances_tone'][0][u'tones']
+	print("Jayson dumps utterances")
+	print(aa)
+	if (aa):
+		print("The tweet %s" % tone[u'utterances_tone'][0][u'utterance_text'])
+		print(outlist[counter].id)
+		print("has an emotional rating of:")
+		for outdex in aa:
+			print(outdex[u'tone_name'])
+			print(outdex[u'score'])
+			print("\n")
+			if(outdex[u'score'])> threshold:
+				slack(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
+				sheet(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
+			
+	else:
+		print("\n")
+
 
 ## This is the section that sends data to the Google Sheet via POST via IFTTT
 ## First -- extract the URL of the tweet
