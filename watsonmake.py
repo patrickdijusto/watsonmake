@@ -9,12 +9,12 @@ import twitter
 from settings import *
 
 global api
-threshold = 0.51
+threshold = 0.80
 
 ## Run entire twitter infrastructure
 
 
-print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nestablish the twitter object')
+print('\n\n\nestablish the twitter object')
 # see "Authentication" section below for tokens and keys
 api = twitter.Api(consumer_key=CONSUMER_KEY,
 	consumer_secret=CONSUMER_SECRET,
@@ -36,35 +36,34 @@ def getPast():
 		flx.write("0")
 		flx.close()
 		flx = open('pastNumber.txt',"r")
-		
-	
+
+
 	row = flx.read()
 
 	flx.close()
-	               
+
 	return int(row)
 
 def getCurrent(pastNumber):
-	
+
 	##Contact twitter
 	## Read most recent tweet(s) that mentions @make, but is not a retweet
 	## return tweet
-	
+
 	St = api.GetSearch(term='@make -RT', since_id = pastNumber, result_type = 'recent')
-	
+	print(St)
 	return St
-	
-	
-	
-	
+
+
+
+
 
 def writePast(ccc):
 	flx = open('pastNumber.txt', "w")
 	flx.write(str(ccc))
 	flx.close()
-        
 
-		
+
 def slack(id, text, name, score):
 
 	## This is the section that sends data to a Slack channel
@@ -81,7 +80,7 @@ def slack(id, text, name, score):
 	z = "https://maker.ifttt.com/trigger/make_slack_threshold/with/key/oLkGeEI6UrkiMC4sK3nQNLZStJaMhKJC1JZT4kumhxm"
 	data = { "value1" : c}
 	r = requests.post(url = z, data = data)
-	
+
 def sheet(index, id, text, name, score):
     ##sad, frustrated, satisfied, excited, polite, impolite, and sympathetic
 	## This is the section that sends data to a Google Spreadhseet
@@ -105,29 +104,29 @@ def sheet(index, id, text, name, score):
 		row = int(flx.read())
 		print(row)
 		flx.close()
-		
+
 		print("Internal index == 1")
 		col = 'B'+str(row)
-		
-	
-	
+
+
+
 	a = "http://twitter.com/anyuser/status/"+str(id)+" "
-		
+
 	z = "https://maker.ifttt.com/trigger/spreadsheet/with/key/oLkGeEI6UrkiMC4sK3nQNLZStJaMhKJC1JZT4kumhxm"
 	data = { "value1" : col, "value2": a}
 	print(data)
 	r = requests.post(url = z, data = data)
 	print(r)
-	
-	
+
+
 	col = 'C'+str(row)
 	data = { "value1" : col, "value2": text}
 	print(data)
 	r = requests.post(url = z, data = data)
 	print(r)
-	
-	
-	
+
+
+
 	if(name == "Sad"):
 		col = 'D'+str(row)
 	elif(name == "Frustrated"):
@@ -142,14 +141,14 @@ def sheet(index, id, text, name, score):
 		col = 'I'+str(row)
 	elif(name == "Sympathetic"):
 		col = 'J'+str(row)
-		
+
 	print(col)
 	data = { "value1" : col, "value2": score}
-	
+
 	print(data)
 	r = requests.post(url = z, data = data)
 	print(r)
-	
+
 	print("pre Row ")
 	print(row)
 	row = row+1
@@ -162,40 +161,40 @@ def sheet(index, id, text, name, score):
 	result = flx.close()
 	print(result)
 
-	
-	
-	
-	
-	
-	
-	
-	
-		
-		
+
+
+
+
+
+
+
+
+
 pastNumber = getPast()
 
-print ("Past number is:")
+print("Past number is:")
 
-print (pastNumber)
+print(pastNumber)
 
 outlist = getCurrent(pastNumber)
 
-writePast(outlist[0].id)
+print(outlist)
+
+##writePast(outlist[0].id)
 
 
 
 
 ##  THE WATSON SECTION OF THE CODE
 ##  https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/python.html?python#tone
-						
-						
-						
+
+
 # 2017-09-21: The service can return results for the following tone IDs: anger, fear, joy, and sadness (emotional tones); analytical, confident, and tentative (language tones). The service returns results only for tones whose scores meet a minimum threshold of 0.5.
 # 2016-05-19: The service can return results for the following tone IDs of the different categories: for the emotion category: anger, disgust, fear, joy, and sadness; for the language category: analytical, confident, and tentative; for the social category: openness_big5, conscientiousness_big5, extraversion_big5, agreeableness_big5, and emotional_range_big5. The service returns scores for all tones of a category, regardless of their values.
-						
-						
-						
-						
+
+
+
+
 tone_analyzer = ToneAnalyzerV3(
     version='2017-09-21',
 	##version='2016-05-19',
@@ -213,22 +212,28 @@ content_type = 'application/json'
 
 try:
 	counter = 0
+	print(counter)
 	for index in outlist:
+		print("index: " & index)
 		counter = counter +1
+		print("Counter: " & counter)
 		mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
+		print(mx)
 		xx= mx.lstrip()
+		print(xx)
 		jayson = [{"text": xx, "user":"customer"}]
 		tone = tone_analyzer.tone_chat(jayson)
-		##print(json.dumps(tone, indent=2))
+		print(json.dumps(tone, indent=2))
 		aa = tone[u'utterances_tone'][0][u'tones']
+		print(aa)
 		if (aa):
 			print("The tweet %s" % tone[u'utterances_tone'][0][u'utterance_text'])
 			print(outlist[counter].id)
 			print("has an emotional rating of:")
 			outdex_index = 1
 			for outdex in aa:
-				print outdex[u'tone_name']
-				print outdex[u'score']
+				print(outdex[u'tone_name'])
+				print(outdex[u'score'])
 				print("\n")
 				if(outdex[u'score'])> threshold:
 					slack(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
@@ -236,19 +241,14 @@ try:
 				outdex_index = outdex_index +1
 		else:
 			print("\n")
-		
+
 except:
     #print "Method failed with status code " + str(ex.code) + ": " + ex.message
 	print("Failure!")
 
-	
-	
 ## This is the section that sends data to the Google Sheet via POST via IFTTT
 ## First -- extract the URL of the tweet
 ## Then combine tone name and score into a single string
 ## Then use POST to send to IFTTT via webhooks
 ## Then let IFTTT update Google Sheet
-
-
-
 
