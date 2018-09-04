@@ -218,7 +218,7 @@ for index in outlist:
 	counter = counter +1
 	print("Counter: ") 
 	print(counter)
-	ax = index.text.encode('ascii','ignore')
+	ax = index.text.encode('ascii','ignore').decode('utf-8')
 	print("ax:")
 	print(ax)
 	mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
