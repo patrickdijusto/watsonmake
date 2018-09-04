@@ -221,7 +221,7 @@ for index in outlist:
 	ax = index.text.encode('ascii','ignore').decode('utf-8')
 	print("ax:")
 	print(ax)
-	mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore'))
+	mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore').decode('utf-8'))
 	print("MX:")
 	print(mx)
 	xx= mx.lstrip()
