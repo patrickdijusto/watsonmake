@@ -3,16 +3,21 @@ import json
 import re
 import requests
 from unicodedata import normalize
-from watson_developer_cloud import ToneAnalyzerV3
-from watson_developer_cloud import WatsonApiException
+#from watson_developer_cloud import ToneAnalyzerV3
+#from watson_developer_cloud import WatsonApiException
 import twitter
-from settings import *
+from textblob import TextBlob
+#from settings import *
 
 global api
 threshold = 0.80
 
 ## Run entire twitter infrastructure
-
+#BrooklynRadioTelegraph - Configuration
+CONSUMER_KEY = "yq9tPAOkB6EnBg9c3LBA" 
+CONSUMER_SECRET = "OSZeqNlIdJWmQRRkNBkMJsrW1YHmILE9ydPrcXcFF0" 
+OAUTH_TOKEN = "813679214-mHPxrpt8vdnw2bAM8FPSC6pNTGXu1IecHrHzXJ9I" 
+OAUTH_SECRET = "Rw0T5ryKt94ccCw0FD7WSLbOKKz2S12z1mfCAcRqY" 
 
 print('\n\n\nestablish the twitter object')
 # see "Authentication" section below for tokens and keys
@@ -50,10 +55,12 @@ def getCurrent(pastNumber):
 	## Read most recent tweet(s) that mentions @make, but is not a retweet
 	## return tweet
 
-	St = api.GetSearch(term='@make -RT', since_id = pastNumber, result_type = 'recent')
+	St = api.GetSearch(term='@ejgertz', since_id = pastNumber, lang = 'en', result_type = 'recent')
 	return St
 
-
+def cleanTweet(tweet):
+	
+	return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \n])|(\w+:\/\/\S+)"," ", tweet).split())
 
 
 
@@ -161,8 +168,19 @@ def sheet(id, text, name, score):
 	print(result)
 
 
+def getTweetSentiment(tweet):
 
-
+	analysis = TextBlob(tweet)
+	print(analysis.sentiment)
+	print(analysis.sentiment.polarity)
+	
+	if analysis.sentiment.polarity >0:
+		return "Positive"
+		
+	if analysis.sentiment.polarity <0:
+		return "Negative"
+		
+	return "Neutral"
 
 
 
@@ -179,80 +197,89 @@ outlist = getCurrent(pastNumber)
 
 print(outlist)
 
-writePast(outlist[0].id)
+
+for tweet in outlist:
+	#print(tweet.quoted_status)
+	print(tweet.text)
+	print(cleanTweet(tweet.text))
+	print(getTweetSentiment(cleanTweet(tweet.text)))
+	print("\n")
+
+
+#writePast(outlist[0].id)
 
 
 
 
-##  THE WATSON SECTION OF THE CODE
-##  https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/python.html?python#tone
+# ##  THE WATSON SECTION OF THE CODE
+# ##  https://www.ibm.com/watson/developercloud/tone-analyzer/api/v3/python.html?python#tone
 
 
-# 2017-09-21: The service can return results for the following tone IDs: anger, fear, joy, and sadness (emotional tones); analytical, confident, and tentative (language tones). The service returns results only for tones whose scores meet a minimum threshold of 0.5.
-# 2016-05-19: The service can return results for the following tone IDs of the different categories: for the emotion category: anger, disgust, fear, joy, and sadness; for the language category: analytical, confident, and tentative; for the social category: openness_big5, conscientiousness_big5, extraversion_big5, agreeableness_big5, and emotional_range_big5. The service returns scores for all tones of a category, regardless of their values.
-
-
-
-
-tone_analyzer = ToneAnalyzerV3(
-    version='2017-09-21',
-	##version='2016-05-19',
-    username='419a0281-d84a-4281-bc03-3def84761f7f',
-    password='aTC4VyXndf2v'
-)
-
-
-tone_analyzer.set_url('https://gateway.watsonplatform.net/tone-analyzer/api')
-
-tone_analyzer.set_detailed_response(False)
-
-content_type = 'application/json'
+# # 2017-09-21: The service can return results for the following tone IDs: anger, fear, joy, and sadness (emotional tones); analytical, confident, and tentative (language tones). The service returns results only for tones whose scores meet a minimum threshold of 0.5.
+# # 2016-05-19: The service can return results for the following tone IDs of the different categories: for the emotion category: anger, disgust, fear, joy, and sadness; for the language category: analytical, confident, and tentative; for the social category: openness_big5, conscientiousness_big5, extraversion_big5, agreeableness_big5, and emotional_range_big5. The service returns scores for all tones of a category, regardless of their values.
 
 
 
-counter = 0
-print(counter)
-for index in outlist:
-	print("index: ")
-	print(index)
-	counter = counter +1
-	print("Counter: ") 
-	print(counter)
-	ax = index.text.encode('ascii','ignore').decode('utf-8')
-	print("ax:")
-	print(ax)
-	mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore').decode('utf-8'))
-	print("MX:")
-	print(mx)
-	xx= mx.lstrip()
-	print("xx")
-	print(xx)
-	jayson = [{"text": xx, "user":"customer"}]
-	tone = tone_analyzer.tone_chat(jayson)
-	print("Jayson dumps tone:")
-	print(json.dumps(tone, indent=2))
-	aa = tone[u'utterances_tone'][0][u'tones']
-	print("Jayson dumps utterances")
-	print(aa)
-	if (aa):
-		print("The tweet %s" % tone[u'utterances_tone'][0][u'utterance_text'])
-		print(outlist[counter].id)
-		print("has an emotional rating of:")
-		for outdex in aa:
-			print(outdex[u'tone_name'])
-			print(outdex[u'score'])
-			print("\n")
-			if(outdex[u'score'])> threshold:
-				slack(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
-				sheet(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
+
+# tone_analyzer = ToneAnalyzerV3(
+    # version='2017-09-21',
+	# ##version='2016-05-19',
+    # username='419a0281-d84a-4281-bc03-3def84761f7f',
+    # password='aTC4VyXndf2v'
+# )
+
+
+# tone_analyzer.set_url('https://gateway.watsonplatform.net/tone-analyzer/api')
+
+# tone_analyzer.set_detailed_response(False)
+
+# content_type = 'application/json'
+
+
+
+# counter = 0
+# print(counter)
+# for index in outlist:
+	# print("index: ")
+	# print(index)
+	# counter = counter +1
+	# print("Counter: ") 
+	# print(counter)
+	# ax = index.text.encode('ascii','ignore').decode('utf-8')
+	# print("ax:")
+	# print(ax)
+	# mx = re.sub(r'https://\S+', '', normalize('NFKD', index.text).encode('ascii','ignore').decode('utf-8'))
+	# print("MX:")
+	# print(mx)
+	# xx= mx.lstrip()
+	# print("xx")
+	# print(xx)
+	# jayson = [{"text": xx, "user":"customer"}]
+	# tone = tone_analyzer.tone_chat(jayson)
+	# print("Jayson dumps tone:")
+	# print(json.dumps(tone, indent=2))
+	# aa = tone[u'utterances_tone'][0][u'tones']
+	# print("Jayson dumps utterances")
+	# print(aa)
+	# if (aa):
+		# print("The tweet %s" % tone[u'utterances_tone'][0][u'utterance_text'])
+		# print(outlist[counter].id)
+		# print("has an emotional rating of:")
+		# for outdex in aa:
+			# print(outdex[u'tone_name'])
+			# print(outdex[u'score'])
+			# print("\n")
+			# if(outdex[u'score'])> threshold:
+				# slack(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
+				# sheet(outlist[counter].id, xx, outdex[u'tone_name'], outdex[u'score'])
 			
-	else:
-		print("\n")
+	# else:
+		# print("\n")
 
 
-## This is the section that sends data to the Google Sheet via POST via IFTTT
-## First -- extract the URL of the tweet
-## Then combine tone name and score into a single string
-## Then use POST to send to IFTTT via webhooks
-## Then let IFTTT update Google Sheet
+# ## This is the section that sends data to the Google Sheet via POST via IFTTT
+# ## First -- extract the URL of the tweet
+# ## Then combine tone name and score into a single string
+# ## Then use POST to send to IFTTT via webhooks
+# ## Then let IFTTT update Google Sheet
 

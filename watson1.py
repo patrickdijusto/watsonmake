@@ -143,66 +143,66 @@ writePast(outlist[0])
 # 2016-05-19: The service can return results for the following tone IDs of the different categories: for the emotion category: anger, disgust, fear, joy, and sadness; for the language category: analytical, confident, and tentative; for the social category: openness_big5, conscientiousness_big5, extraversion_big5, agreeableness_big5, and emotional_range_big5. The service returns scores for all tones of a category, regardless of their values.
 						
 						
-						
-						
-tone_analyzer = ToneAnalyzerV3(
-    ##version='2017-09-21',
-	version='2016-05-19',
-    username='419a0281-d84a-4281-bc03-3def84761f7f',
-    password='aTC4VyXndf2v'
-)
-
-
-tone_analyzer.set_url('https://gateway.watsonplatform.net/tone-analyzer/api')
-
-tone_analyzer.set_detailed_response(False)
-
-content_type = 'application/json'
-
-
-try:
-	if(outlist[1][:2] != "RT"):
-		tone = tone_analyzer.tone({"text": outlist[1]},content_type, True)
-except WatsonApiException as ex:
-#except:
-    print "Method failed with status code " + str(ex.code) + ": " + ex.message
-	#print("Failure!")
-
-
-print(json.dumps(tone, indent=2))
-
-print(tone)	
-
-try:
-	t0=(tone[u'document_tone'][u'tones'][0][u'tone_name'])
-	s0=(tone[u'document_tone'][u'tones'][0][u'score'])
-	print("\nThis tweet gets %s out of 100 for %s" % ((s0* 100),t0))
-except:
-	print('\nNothing to report')
-
-
-try:	
-	t1=(tone[u'document_tone'][u'tones'][1][u'tone_name'])
-	s1=(tone[u'document_tone'][u'tones'][1][u'score'])
-	print("This tweet gets %s out of 100 for %s" % ((s1* 100),t1))
-except:
-	print('Nothing further to report')
-	
-	
-	
-try:
-	t2=(tone[u'document_tone'][u'tones'][2][u'tone_name'])
-	s2=(tone[u'document_tone'][u'tones'][2][u'score'])
-	print("This tweet gets %s out of 100 for %s" % ((s2* 100),t2))
-except:
-	print('Nothing further to report')
-	
-
-try:	
-	t3=(tone[u'document_tone'][u'tones'][3][u'tone_name'])
-	s3=(tone[u'document_tone'][u'tones'][3][u'score'])
-	print("This tweet gets %s out of 100 for %s" % ((s3* 100),t3))
-except:
-	print('Nothing further to report')
-
-
+##						
+##						
+##tone_analyzer = ToneAnalyzerV3(
+##    ##version='2017-09-21',
+##	version='2016-05-19',
+##    username='419a0281-d84a-4281-bc03-3def84761f7f',
+##    password='aTC4VyXndf2v'
+##)
+##
+##
+##tone_analyzer.set_url('https://gateway.watsonplatform.net/tone-analyzer/api')
+##
+##tone_analyzer.set_detailed_response(False)
+##
+##content_type = 'application/json'
+##
+##
+##try:
+##	if(outlist[1][:2] != "RT"):
+##		tone = tone_analyzer.tone({"text": outlist[1]},content_type, True)
+##except WatsonApiException as ex:
+###except:
+##    print ("Method failed with status code " + str(ex.code) + ": " + ex.message)
+##	#print("Failure!")
+##
+##
+##print(json.dumps(tone, indent=2))
+##
+##print(tone)	
+##
+##try:
+##	t0=(tone[u'document_tone'][u'tones'][0][u'tone_name'])
+##	s0=(tone[u'document_tone'][u'tones'][0][u'score'])
+##	print("\nThis tweet gets %s out of 100 for %s" % ((s0* 100),t0))
+##except:
+##	print('\nNothing to report')
+##
+##
+##try:	
+##	t1=(tone[u'document_tone'][u'tones'][1][u'tone_name'])
+##	s1=(tone[u'document_tone'][u'tones'][1][u'score'])
+##	print("This tweet gets %s out of 100 for %s" % ((s1* 100),t1))
+##except:
+##	print('Nothing further to report')
+##	
+##	
+##	
+##try:
+##	t2=(tone[u'document_tone'][u'tones'][2][u'tone_name'])
+##	s2=(tone[u'document_tone'][u'tones'][2][u'score'])
+##	print("This tweet gets %s out of 100 for %s" % ((s2* 100),t2))
+##except:
+##	print('Nothing further to report')
+##	
+##
+##try:	
+##	t3=(tone[u'document_tone'][u'tones'][3][u'tone_name'])
+##	s3=(tone[u'document_tone'][u'tones'][3][u'score'])
+##	print("This tweet gets %s out of 100 for %s" % ((s3* 100),t3))
+##except:
+##	print('Nothing further to report')
+##
+##
